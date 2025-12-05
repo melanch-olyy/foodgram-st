@@ -1,19 +1,22 @@
-from api.filters import IngredientFilter, RecipeFilter
-from api.pagination import LimitPagination
-from api.permissions import IsAuthorOrReadOnly
-from api.serializers import (IngredientSerializer, RecipeReadSerializer,
-                             RecipeWriteSerializer, ShortRecipeSerializer,
-                             UserAvatarSerializer, UserSubscriptionsSerializer)
 from django.db.models import Sum
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from djoser.views import UserViewSet as DjoserUserViewSet
-from recipes.models import (Favorite, Ingredient, Recipe, RecipeIngredient,
-                            ShoppingCart)
 from rest_framework import permissions, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
+
+from api.filters import IngredientFilter, RecipeFilter
+from api.pagination import LimitPagination
+from api.permissions import IsAuthorOrReadOnly
+from api.serializers import (
+    IngredientSerializer, RecipeReadSerializer, RecipeWriteSerializer,
+    ShortRecipeSerializer, UserAvatarSerializer, UserSubscriptionsSerializer
+)
+from recipes.models import (
+    Favorite, Ingredient, Recipe, RecipeIngredient, ShoppingCart
+)
 from users.models import Subscription, User
 
 
@@ -73,6 +76,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
                 {'errors': 'Объект не найден'},
                 status=status.HTTP_400_BAD_REQUEST
             )
+        return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
     @action(detail=True, methods=['post', 'delete'],
             permission_classes=[permissions.IsAuthenticated])
@@ -131,6 +135,7 @@ class UserViewSet(DjoserUserViewSet):
         if request.method == 'DELETE':
             user.avatar.delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
+        return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
     @action(detail=False, permission_classes=[permissions.IsAuthenticated])
     def subscriptions(self, request):
@@ -178,3 +183,4 @@ class UserViewSet(DjoserUserViewSet):
                 {'errors': 'Вы не были подписаны'},
                 status=status.HTTP_400_BAD_REQUEST
             )
+        return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
