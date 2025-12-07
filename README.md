@@ -126,6 +126,7 @@ docker compose exec backend python manage.py load_ingredients
 
 ### 4. Подписка на автора (требуется токен)
 **POST** `/api/users/{id}/subscribe/` 
+
 **Ответ:**
 ```json
 {
@@ -148,8 +149,8 @@ docker compose exec backend python manage.py load_ingredients
 
 При пуше в ветку `main` выполняются следующие шаги:
 
-### 1. Tests: Проверка кода на соответствие стандартам PEP8 (flake8).
-### 2. Build & Push: Сборка Docker-образов для бэкенда и фронтенда и их отправка в Docker Hub.
+1. Tests: Проверка кода на соответствие стандартам PEP8 (flake8).
+2. Build & Push: Сборка Docker-образов для бэкенда и фронтенда и их отправка в Docker Hub.
 
 ---
 
