@@ -1,14 +1,24 @@
 from django.contrib.auth.models import AbstractUser
 from django.core.validators import RegexValidator
 from django.db import models
+
 from foodgram.constants import MAX_LENGTH_EMAIL, MAX_LENGTH_NAME
 
 
-class User(AbstractUser):
-    """Кастомная модель пользователя."""
+class SomeUser(AbstractUser):
+    """Модель пользователей платформы Foodgram."""
 
+    username = models.CharField(
+        'Уникальный юзернейм',
+        max_length=MAX_LENGTH_NAME,
+        unique=True,
+        validators=[RegexValidator(
+            regex=r'^[\w.@+-]+$',
+            message='Имя пользователя содержит недопустимые символы.'
+        )]
+    )
     email = models.EmailField(
-        'Email',
+        'Адрес электронной почты',
         max_length=MAX_LENGTH_EMAIL,
         unique=True,
     )
@@ -20,17 +30,8 @@ class User(AbstractUser):
         'Фамилия',
         max_length=MAX_LENGTH_NAME
     )
-    username = models.CharField(
-        'Никнейм',
-        max_length=MAX_LENGTH_NAME,
-        unique=True,
-        validators=[RegexValidator(
-            regex=r'^[\w.@+-]+$',
-            message='Никнейм содержит недопустимые символы'
-        )]
-    )
     avatar = models.ImageField(
-        'Аватар',
+        'Фотография профиля',
         upload_to='users/',
         null=True,
         blank=True
@@ -42,26 +43,26 @@ class User(AbstractUser):
     class Meta:
         verbose_name = 'Пользователь'
         verbose_name_plural = 'Пользователи'
-        ordering = ('id',)
+        ordering = ('username',)
 
     def __str__(self):
         return self.username
 
 
 class Subscription(models.Model):
-    """Модель подписки на автора."""
+    """Система подписок."""
 
     user = models.ForeignKey(
-        User,
+        SomeUser,
         on_delete=models.CASCADE,
         related_name='subscriber',
-        verbose_name='Подписчик'
+        verbose_name='Кто подписался'
     )
     author = models.ForeignKey(
-        User,
+        SomeUser,
         on_delete=models.CASCADE,
         related_name='subscribing',
-        verbose_name='Автор'
+        verbose_name='На кого подписались'
     )
 
     class Meta:
@@ -75,4 +76,4 @@ class Subscription(models.Model):
         ]
 
     def __str__(self):
-        return f'{self.user} подписан на {self.author}'
+        return f'{self.user.username} -> {self.author.username}'

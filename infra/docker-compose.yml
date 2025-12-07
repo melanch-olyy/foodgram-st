@@ -23,9 +23,9 @@ services:
       db:
         condition: service_healthy
     volumes:
-      - ../backend:/app           
-      - ../data:/app/data        
-      - static_volume:/app/staticfiles
+      - ../backend:/app
+      - ../data:/app/data
+      - static_volume:/backend_static
       - media_volume:/app/media
     ports:
       - "8000:8000"
@@ -45,7 +45,7 @@ services:
     volumes:
       - ./nginx.conf:/etc/nginx/conf.d/default.conf
       - ../frontend/build:/usr/share/nginx/html/
-      - ../docs/:/usr/share/nginx/html/api/docs/  
+      - ../docs/:/usr/share/nginx/html/api/docs/
       - static_volume:/staticfiles/
       - media_volume:/app/media/
     depends_on:

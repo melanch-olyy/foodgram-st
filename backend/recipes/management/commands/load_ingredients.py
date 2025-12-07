@@ -1,5 +1,5 @@
 import json
-import os
+from pathlib import Path
 
 from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
@@ -7,29 +7,32 @@ from recipes.models import Ingredient
 
 
 class Command(BaseCommand):
-    help = 'Загрузка ингредиентов из JSON файла'
+    help = 'Импорт ингредиентов в базу данных'
 
     def handle(self, *args, **options):
+        base_dir = Path(settings.BASE_DIR)
+        potential_paths = [
+            base_dir / 'data' / 'ingredients.json',
+            base_dir.parent / 'data' / 'ingredients.json',
+            Path('/app/data/ingredients.json'),
+        ]
 
-        file_path = os.path.join(settings.BASE_DIR, 'data', 'ingredients.json')
+        target_file = None
+        for path in potential_paths:
+            if path.exists():
+                target_file = path
+                break
 
-        if not os.path.exists(file_path):
-            file_path = os.path.join(
-                settings.BASE_DIR, '..', 'data', 'ingredients.json'
-            )
-        if not os.path.exists(file_path):
-            file_path = '/app/data/ingredients.json'
+        if not target_file:
+            raise CommandError('Файл ingredients.json не найден.')
 
-        if not os.path.exists(file_path):
-            raise CommandError(f'Файл не найден. Проверен путь: {file_path}')
-
-        self.stdout.write(f'Загрузка из файла: {file_path}')
+        self.stdout.write(f'Чтение файла: {target_file}')
 
         try:
-            with open(file_path, 'r', encoding='utf-8') as f:
-                data = json.load(f)
+            with open(target_file, 'r', encoding='utf-8') as file:
+                data = json.load(file)
 
-            ingredients_to_create = [
+            objs = [
                 Ingredient(
                     name=item['name'],
                     measurement_unit=item['measurement_unit']
@@ -37,16 +40,10 @@ class Command(BaseCommand):
                 for item in data
             ]
 
-            Ingredient.objects.bulk_create(
-                ingredients_to_create, ignore_conflicts=True
-            )
+            Ingredient.objects.bulk_create(objs, ignore_conflicts=True)
             self.stdout.write(
-                self.style.SUCCESS(
-                    f'Загружено {len(ingredients_to_create)} ингредиентов'
-                )
+                self.style.SUCCESS(f'Добавлено: {len(objs)} ингредиентов.')
             )
 
-        except json.JSONDecodeError:
-            self.stdout.write(self.style.ERROR('Ошибка: Невалидный JSON файл'))
-        except Exception as e:
-            self.stdout.write(self.style.ERROR(f'Произошла ошибка: {e}'))
+        except Exception as error:
+            raise CommandError(f'Ошибка импорта: {error}')
