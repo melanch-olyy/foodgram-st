@@ -11,12 +11,11 @@
 
 Основные инструменты и библиотеки, использованные в разработке:
 
-* [![Python][Python-shield]][Python-url]
-* [![Django][Django-shield]][Django-url]
-* [![DRF][DRF-shield]][DRF-url]
-* [![Docker][Docker-shield]][Docker-url]
-* [![Nginx][Nginx-shield]][Nginx-url]
-* [![PostgreSQL][Postgres-shield]][Postgres-url]
+*   Python 3.9+ / Django 3.2+
+*   API: Django REST Framework
+*   БД: PostgreSQL
+*   Контейнеризация: Docker, Docker Compose
+*   Веб-сервер: Nginx
 
 ## Инструкция по развертыванию
 
